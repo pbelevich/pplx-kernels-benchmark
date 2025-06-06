@@ -1,7 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 ARG GDRCOPY_VERSION=v2.4.4
-ARG EFA_INSTALLER_VERSION=1.41.0
+ARG EFA_INSTALLER_VERSION=1.42.0
 ARG AWS_OFI_NCCL_VERSION=v1.14.2
 ARG NCCL_VERSION=v2.26.6-1
 ARG NCCL_TESTS_VERSION=v2.15.2
@@ -30,3 +30,5 @@ RUN git clone https://github.com/ppl-ai/pplx-kernels.git /pplx-kernels \
 ENV PYTHONPATH=/pplx-kernels
 
 COPY launch_bench_all_to_all.py /launch_bench_all_to_all.py
+
+RUN mkdir -p /tmp/coredump

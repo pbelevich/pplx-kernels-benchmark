@@ -5,7 +5,7 @@ https://github.com/ppl-ai/pplx-kernels
 
 ```bash
 GDRCOPY_VERSION=v2.4.4
-EFA_INSTALLER_VERSION=1.41.0
+EFA_INSTALLER_VERSION=1.42.0
 AWS_OFI_NCCL_VERSION=v1.14.2
 NCCL_VERSION=v2.26.6-1
 NCCL_TESTS_VERSION=v2.15.2
@@ -23,7 +23,7 @@ docker build --progress=plain -f ../nccl-tests/nccl-tests.Dockerfile \
        .
 ```
 
-### Building NVSHMEM Docker image on top of NCCL Tests Docker base image
+## Building NVSHMEM Docker image on top of NCCL Tests Docker base image
 https://github.com/aws-samples/awsome-distributed-training/tree/main/micro-benchmarks/nvshmem
 
 ```bash
@@ -76,6 +76,12 @@ sbatch pplx-kernels.sbatch
 ```bash
 tail -f -n +0 slurm-XXX.out
 ```
+
+## Core dump
+
+1. run `ulimit -c unlimited` and check that `srun -N <num of nodes> bash -c "ulimit -c"` should print `unlimited` <num of nodes> times
+2. run `srun -N <num of nodes> sudo bash -c "mkdir -p /tmp/coredump && echo '/tmp/coredump/core.%e.%p' > /proc/sys/kernel/core_pattern"`
+3. run `sbatch pplx-kernels.sbatch`
 
 ## Example of the output
 
