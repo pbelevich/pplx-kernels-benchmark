@@ -30,3 +30,5 @@ RUN git clone https://github.com/ppl-ai/pplx-kernels.git /pplx-kernels \
 ENV PYTHONPATH=/pplx-kernels
 
 COPY launch_bench_all_to_all.py /launch_bench_all_to_all.py
+
+RUN mkdir -p /tmp/coredump

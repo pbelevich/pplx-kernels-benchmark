@@ -67,5 +67,5 @@ export PYTHONFAULTHANDLER=1
 
 srun -l --container-image ./pplx-kernels.sqsh \
     --mpi=pmix --cpu-bind=none \
-    --container-mounts=$(pwd)/data:/pplx-kernels/data \
+    --container-mounts=$(pwd)/coredump:/tmp/coredump,$(pwd)/data:/pplx-kernels/data \
     bash -c "RANK=\${SLURM_PROCID} python -X faulthandler launch_bench_all_to_all.py"
