@@ -21,9 +21,9 @@ ENV PATH="/opt/miniconda3/bin:${PATH}"
 RUN pip install torch --index-url https://download.pytorch.org/whl/cu118
 RUN pip install ninja numpy cmake pytest
 
-RUN git clone https://github.com/pbelevich/pplx-kernels.git /pplx-kernels \
+RUN git clone https://github.com/ppl-ai/pplx-kernels.git /pplx-kernels \
     && cd /pplx-kernels \
-    && git checkout cmake_nvshmem_interface_link \
+    && git checkout 521848e8c3e3f91bc0e76993bb5a0479b50281c3 \
     && TORCH_CUDA_ARCH_LIST=9.0a+PTX python3 setup.py bdist_wheel \
     && pip install dist/*.whl
 
