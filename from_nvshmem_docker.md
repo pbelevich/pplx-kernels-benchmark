@@ -1,7 +1,7 @@
 # Perplexity Kernels Benchmark
 https://github.com/ppl-ai/pplx-kernels
 
-## Building Perplexity Kernels Docker image
+## Building NCCL Tests Docker image
 
 ```bash
 GDRCOPY_VERSION=v2.4.4
@@ -9,6 +9,43 @@ EFA_INSTALLER_VERSION=1.42.0
 AWS_OFI_NCCL_VERSION=v1.14.2
 NCCL_VERSION=v2.26.6-1
 NCCL_TESTS_VERSION=v2.15.2
+TAG="efa${EFA_INSTALLER_VERSION}-ofi${AWS_OFI_NCCL_VERSION}-nccl${NCCL_VERSION}-tests${NCCL_TESTS_VERSION}"
+NCCL_CONTAINER_IMAGE_NAME_TAG="nccl-tests:${TAG}"
+```
+
+```bash
+docker build --progress=plain -f ../nccl-tests/nccl-tests.Dockerfile \
+       --build-arg="EFA_INSTALLER_VERSION=${EFA_INSTALLER_VERSION}" \
+       --build-arg="AWS_OFI_NCCL_VERSION=${AWS_OFI_NCCL_VERSION}" \
+       --build-arg="NCCL_VERSION=${NCCL_VERSION}" \
+       --build-arg="NCCL_TESTS_VERSION=${NCCL_TESTS_VERSION}" \
+       -t ${NCCL_CONTAINER_IMAGE_NAME_TAG} \
+       .
+```
+
+## Building NVSHMEM Docker image on top of NCCL Tests Docker base image
+https://github.com/aws-samples/awsome-distributed-training/tree/main/micro-benchmarks/nvshmem
+
+```bash
+NVSHMEM_VERSION=3.2.5-1
+TAG="efa${EFA_INSTALLER_VERSION}-ofi${AWS_OFI_NCCL_VERSION}-nccl${NCCL_VERSION}-tests${NCCL_TESTS_VERSION}-nvshmem${NVSHMEM_VERSION}"
+NVSHMEM_CONTAINER_IMAGE_NAME_TAG="nvshmem:${TAG}"
+```
+
+```bash
+docker build --progress=plain -f ../nvshmem/nvshmem.Dockerfile \
+       --build-arg="EFA_INSTALLER_VERSION=${EFA_INSTALLER_VERSION}" \
+       --build-arg="AWS_OFI_NCCL_VERSION=${AWS_OFI_NCCL_VERSION}" \
+       --build-arg="NCCL_VERSION=${NCCL_VERSION}" \
+       --build-arg="NCCL_TESTS_VERSION=${NCCL_TESTS_VERSION}" \
+       --build-arg="NVSHMEM_VERSION=${NVSHMEM_VERSION}" \
+       -t ${NVSHMEM_CONTAINER_IMAGE_NAME_TAG} \
+       .
+```
+
+## Building Perplexity Kernels Docker image on top of NVSHMEM Docker image
+
+```bash
 TAG="efa${EFA_INSTALLER_VERSION}-ofi${AWS_OFI_NCCL_VERSION}-nccl${NCCL_VERSION}-tests${NCCL_TESTS_VERSION}-nvshmem${NVSHMEM_VERSION}"
 PPLX_CONTAINER_IMAGE_NAME_TAG="pplx-kernels:${TAG}"
 ```
