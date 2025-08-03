@@ -7,10 +7,9 @@ FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04
 
 ARG GDRCOPY_VERSION=v2.4.4
 ARG EFA_INSTALLER_VERSION=1.42.0
-ARG AWS_OFI_NCCL_VERSION=v1.14.2
-ARG NCCL_VERSION=v2.26.6-1
-ARG NCCL_TESTS_VERSION=v2.15.2
-ARG NVSHMEM_VERSION=3.2.5-1
+ARG AWS_OFI_NCCL_VERSION=v1.16.0
+ARG NCCL_VERSION=v2.27.5-1
+ARG NCCL_TESTS_VERSION=v2.16.4
 
 RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get remove -y --allow-change-held-packages \
@@ -48,7 +47,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-unauthenticated \
     openssh-server \
     pkg-config \
     python3-distutils \
-    vim
+    vim \
+    python3.10-dev \
+    python3.10-venv
 RUN apt-get purge -y cuda-compat-*
 
 RUN mkdir -p /var/run/sshd
@@ -146,6 +147,8 @@ ENV NVSHMEM_DIR=/opt/nvshmem
 ENV NVSHMEM_HOME=/opt/nvshmem
 
 # wget https://developer.nvidia.com/downloads/assets/secure/nvshmem/nvshmem_src_3.2.5-1.txz && tar -xvf nvshmem_src_3.2.5-1.txz
+# or
+# wget https://developer.download.nvidia.com/compute/redist/nvshmem/3.3.9/source/nvshmem_src_cuda12-all-all-3.3.9.tar.gz && tar -xvf nvshmem_src_cuda12-all-all-3.3.9.tar.gz
 COPY ./nvshmem_src /nvshmem_src
 
 RUN cd /nvshmem_src \
@@ -191,25 +194,17 @@ RUN cd /nvshmem_src \
 ENV PATH /opt/nvshmem/bin:$PATH
 ENV LD_LIBRARY_PATH /opt/nvshmem/lib:$LD_LIBRARY_PATH
 # ENV PATH=/opt/nvshmem/bin:$PATH LD_LIBRARY_PATH=/opt/amazon/pmix/lib:/opt/nvshmem/lib:$LD_LIBRARY_PATH NVSHMEM_REMOTE_TRANSPORT=libfabric NVSHMEM_LIBFABRIC_PROVIDER=efa
-################################ PPLX-KERNELS ########################################
 
-# Install Miniconda to not depend on the base image python
-RUN mkdir -p /opt/miniconda3 \
-    && curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/Miniconda3-latest-Linux-x86_64.sh \
-    && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -f -p /opt/miniconda3 \
-    && rm /tmp/Miniconda3-latest-Linux-x86_64.sh \
-    && /opt/miniconda3/bin/conda init bash
+################################ PyTorch ########################################
 
-ENV PATH="/opt/miniconda3/bin:${PATH}"
-
-RUN pip install torch --index-url https://download.pytorch.org/whl/cu118
+RUN pip install torch --index-url https://download.pytorch.org/whl/cu128
 RUN pip install ninja numpy cmake pytest
 
 ################################ PPLX-KERNELS ########################################
 
 RUN git clone https://github.com/ppl-ai/pplx-kernels.git /pplx-kernels \
     && cd /pplx-kernels \
-    && git checkout c336fafe1d416c3d0c16e19cace590953b4f21b3
+    && git checkout 1d76f488d794f01dc0e895cd746b235392379757
 # COPY pplx-kernels /pplx-kernels
 
 RUN cd /pplx-kernels \
