@@ -5,11 +5,11 @@ FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04
 
 ################################ NCCL ########################################
 
-ARG GDRCOPY_VERSION=v2.4.4
-ARG EFA_INSTALLER_VERSION=1.42.0
-ARG AWS_OFI_NCCL_VERSION=v1.16.0
-ARG NCCL_VERSION=v2.27.5-1
-ARG NCCL_TESTS_VERSION=v2.16.4
+ARG GDRCOPY_VERSION=v2.5.1
+ARG EFA_INSTALLER_VERSION=1.43.2
+ARG AWS_OFI_NCCL_VERSION=v1.16.3
+ARG NCCL_VERSION=v2.27.7-1
+ARG NCCL_TESTS_VERSION=v2.16.9
 
 RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get remove -y --allow-change-held-packages \
@@ -57,8 +57,8 @@ RUN sed -i 's/[ #]\(.*StrictHostKeyChecking \).*/ \1no/g' /etc/ssh/ssh_config &&
     echo "    UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config && \
     sed -i 's/#\(StrictModes \).*/\1no/g' /etc/ssh/sshd_config
 
-ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:/opt/amazon/openmpi/lib:/opt/nccl/build/lib:/opt/amazon/efa/lib:/opt/aws-ofi-nccl/install/lib:/usr/local/lib:$LD_LIBRARY_PATH
-ENV PATH /opt/amazon/openmpi/bin/:/opt/amazon/efa/bin:/usr/bin:/usr/local/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda/extras/CUPTI/lib64:/opt/amazon/openmpi/lib:/opt/nccl/build/lib:/opt/amazon/efa/lib:/opt/aws-ofi-nccl/install/lib:/usr/local/lib:$LD_LIBRARY_PATH
+ENV PATH=/opt/amazon/openmpi/bin/:/opt/amazon/efa/bin:/usr/bin:/usr/local/bin:$PATH
 
 RUN curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py \
     && python3 /tmp/get-pip.py \
@@ -73,10 +73,10 @@ RUN git clone -b ${GDRCOPY_VERSION} https://github.com/NVIDIA/gdrcopy.git /tmp/g
     && cd /tmp/gdrcopy \
     && make prefix=/opt/gdrcopy install
 
-ENV LD_LIBRARY_PATH /opt/gdrcopy/lib:$LD_LIBRARY_PATH
-ENV LIBRARY_PATH /opt/gdrcopy/lib:$LIBRARY_PATH
-ENV CPATH /opt/gdrcopy/include:$CPATH
-ENV PATH /opt/gdrcopy/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/gdrcopy/lib:$LD_LIBRARY_PATH
+ENV LIBRARY_PATH=/opt/gdrcopy/lib:$LIBRARY_PATH
+ENV CPATH=/opt/gdrcopy/include:$CPATH
+ENV PATH=/opt/gdrcopy/bin:$PATH
 
 #################################################
 ## Install EFA installer
@@ -139,17 +139,17 @@ ENV OMPI_MCA_pml=^ucx            \
 ENV PMIX_MCA_gds=hash
 
 ## Set LD_PRELOAD for NCCL library
-ENV LD_PRELOAD /opt/nccl/build/lib/libnccl.so
+ENV LD_PRELOAD=/opt/nccl/build/lib/libnccl.so
 
 ################################ NVSHMEM ########################################
 
 ENV NVSHMEM_DIR=/opt/nvshmem
 ENV NVSHMEM_HOME=/opt/nvshmem
 
-# wget https://developer.nvidia.com/downloads/assets/secure/nvshmem/nvshmem_src_3.2.5-1.txz && tar -xvf nvshmem_src_3.2.5-1.txz
-# or
-# wget https://developer.download.nvidia.com/compute/redist/nvshmem/3.3.9/source/nvshmem_src_cuda12-all-all-3.3.9.tar.gz && tar -xvf nvshmem_src_cuda12-all-all-3.3.9.tar.gz
-COPY ./nvshmem_src /nvshmem_src
+# 3.2.5-1: wget https://developer.nvidia.com/downloads/assets/secure/nvshmem/nvshmem_src_3.2.5-1.txz && tar -xvf nvshmem_src_3.2.5-1.txz
+# 3.3.9:   wget https://developer.download.nvidia.com/compute/redist/nvshmem/3.3.9/source/nvshmem_src_cuda12-all-all-3.3.9.tar.gz && tar -xvf nvshmem_src_cuda12-all-all-3.3.9.tar.gz
+# 3.4.5-0: git clone https://github.com/NVIDIA/nvshmem.git && cd ./nvshmem && git checkout df2814155acfba6227534dd81a8bf338da9e55f2
+COPY ./nvshmem /nvshmem_src
 
 RUN cd /nvshmem_src \
     && mkdir -p build \
@@ -159,7 +159,7 @@ RUN cd /nvshmem_src \
     -DCMAKE_INSTALL_PREFIX=/opt/nvshmem \
     \
     -DCUDA_HOME=/usr/local/cuda \
-    -DCMAKE_CUDA_ARCHITECTURES=90a \
+    -DCMAKE_CUDA_ARCHITECTURES="90a;100" \
     \
     -DNVSHMEM_USE_GDRCOPY=1 \
     -DGDRCOPY_HOME=/opt/gdrcopy \
@@ -191,8 +191,8 @@ RUN cd /nvshmem_src \
     && make -j$(nproc) \
     && make install
 
-ENV PATH /opt/nvshmem/bin:$PATH
-ENV LD_LIBRARY_PATH /opt/nvshmem/lib:$LD_LIBRARY_PATH
+ENV PATH=/opt/nvshmem/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/nvshmem/lib:$LD_LIBRARY_PATH
 # ENV PATH=/opt/nvshmem/bin:$PATH LD_LIBRARY_PATH=/opt/amazon/pmix/lib:/opt/nvshmem/lib:$LD_LIBRARY_PATH NVSHMEM_REMOTE_TRANSPORT=libfabric NVSHMEM_LIBFABRIC_PROVIDER=efa
 
 ################################ PyTorch ########################################
@@ -204,11 +204,11 @@ RUN pip install ninja numpy cmake pytest
 
 RUN git clone https://github.com/ppl-ai/pplx-kernels.git /pplx-kernels \
     && cd /pplx-kernels \
-    && git checkout 1d76f488d794f01dc0e895cd746b235392379757
+    && git checkout 12cecfda252e4e646417ac263d96e994d476ee5d
 # COPY pplx-kernels /pplx-kernels
 
 RUN cd /pplx-kernels \
-    && TORCH_CUDA_ARCH_LIST=9.0a+PTX python3 setup.py bdist_wheel \
+    && TORCH_CUDA_ARCH_LIST="9.0a+PTX;10.0" python3 setup.py bdist_wheel \
     && pip install dist/*.whl
 
 ENV PYTHONPATH=/pplx-kernels
