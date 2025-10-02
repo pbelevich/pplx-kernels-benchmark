@@ -1,4 +1,4 @@
 *.sqsh
-nvshmem_src*
+nvshmem*
 *.out
 *.err
