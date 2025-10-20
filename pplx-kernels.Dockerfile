@@ -6,9 +6,8 @@ FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04
 ################################ NCCL ########################################
 
 ARG GDRCOPY_VERSION=v2.5.1
-ARG EFA_INSTALLER_VERSION=1.43.2
-ARG AWS_OFI_NCCL_VERSION=v1.16.3
-ARG NCCL_VERSION=v2.27.7-1
+ARG EFA_INSTALLER_VERSION=1.43.3
+ARG NCCL_VERSION=v2.28.7-1
 ARG NCCL_TESTS_VERSION=v2.16.9
 
 RUN apt-get update -y && apt-get upgrade -y
@@ -174,6 +173,8 @@ ENV PATH=/opt/nvshmem/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/nvshmem/lib:$LD_LIBRARY_PATH
 # ENV PATH=/opt/nvshmem/bin:$PATH LD_LIBRARY_PATH=/opt/amazon/pmix/lib:/opt/nvshmem/lib:$LD_LIBRARY_PATH NVSHMEM_REMOTE_TRANSPORT=libfabric NVSHMEM_LIBFABRIC_PROVIDER=efa
 
+RUN pip install /nvshmem_src/build/dist/nvshmem4py_cu12-0.1.2-cp310-cp310-manylinux_2_34_x86_64.whl
+
 ################################ PyTorch ########################################
 
 RUN pip install torch --index-url https://download.pytorch.org/whl/cu128
@@ -183,7 +184,7 @@ RUN pip install ninja numpy cmake pytest
 
 RUN git clone https://github.com/ppl-ai/pplx-kernels.git /pplx-kernels \
     && cd /pplx-kernels \
-    && git checkout 12cecfda252e4e646417ac263d96e994d476ee5d
+    && git checkout 2bd6e30fab358829bd01d1c0907be8088ff9e5e1
 # COPY pplx-kernels /pplx-kernels
 
 RUN cd /pplx-kernels \
