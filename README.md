@@ -1,16 +1,16 @@
 # Perplexity Kernels Benchmark
 https://github.com/ppl-ai/pplx-kernels
 
-Updated to [NVSHMEM 3.4.5-0](https://github.com/NVIDIA/nvshmem/commit/df2814155acfba6227534dd81a8bf338da9e55f2) and PPLX-KERNELS [Aug 6, 2025](https://github.com/ppl-ai/pplx-kernels/commit/12cecfda252e4e646417ac263d96e994d476ee5d)
+Updated to [NVSHMEM 2d7d25f0816235e3c2b51779571ec032606ea0dd](https://github.com/NVIDIA/nvshmem/tree/2d7d25f0816235e3c2b51779571ec032606ea0dd) and PPLX-KERNELS [Sep 19, 2025](https://github.com/ppl-ai/pplx-kernels/commit/2bd6e30fab358829bd01d1c0907be8088ff9e5e1)
 
 ## Git clone NVSHMEM
 
-3.4.5-0:
+[NVSHMEM 2d7d25f0816235e3c2b51779571ec032606ea0dd](https://github.com/NVIDIA/nvshmem/tree/2d7d25f0816235e3c2b51779571ec032606ea0dd):
 ```
-git clone https://github.com/NVIDIA/nvshmem.git && cd ./nvshmem && git checkout df2814155acfba6227534dd81a8bf338da9e55f2 && cd ..
+git clone https://github.com/NVIDIA/nvshmem.git && cd ./nvshmem && git checkout 2d7d25f0816235e3c2b51779571ec032606ea0dd && cd ..
 ```
 
-devel brach:
+devel branch:
 ```
 git clone https://github.com/NVIDIA/nvshmem.git && cd ./nvshmem && git checkout devel && cd ..
 ```
@@ -19,10 +19,10 @@ git clone https://github.com/NVIDIA/nvshmem.git && cd ./nvshmem && git checkout 
 
 ```bash
 GDRCOPY_VERSION=v2.5.1
-EFA_INSTALLER_VERSION=1.43.2
-NCCL_VERSION=v2.27.7-1
+EFA_INSTALLER_VERSION=1.43.3
+NCCL_VERSION=v2.28.7-1
 NCCL_TESTS_VERSION=v2.16.9
-NVSHMEM_VERSION=3.4.5-0
+NVSHMEM_VERSION=2d7d25f0816235e3c2b51779571ec032606ea0dd
 TAG="efa${EFA_INSTALLER_VERSION}-nccl${NCCL_VERSION}-tests${NCCL_TESTS_VERSION}-nvshmem${NVSHMEM_VERSION}"
 PPLX_CONTAINER_IMAGE_NAME_TAG="pplx-kernels:${TAG}"
 ```
